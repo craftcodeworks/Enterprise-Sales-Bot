@@ -1,0 +1,23 @@
+# FastAPI/Uvicorn for the web server
+fastapi
+uvicorn
+
+# Database connector
+pyodbc
+
+# LLM integration (Groq and LangChain)
+groq
+langchain-core
+langchain-community
+langchain-groq
+python-dateutil
+
+# Vector Database and Embeddings
+chromadb
+sentence-transformers # A common choice for embedding models
+
+# Additional dependencies (ADD THESE)
+pydantic>=2.0.0      # For ChatState model validation
+requests             # For Teams Bot API calls
+pytz                 # For timezone handling in teams_index.py
+python-dotenv        # For environment variables

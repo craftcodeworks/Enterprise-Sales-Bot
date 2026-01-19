@@ -1,0 +1,252 @@
+[
+  {
+    "id": "top_salesperson_flexible_period",
+    "question": "Who generated the highest or lowest sales value? Which salesperson had the top or bottom overall sales performance in a time period? Who is the best or worst performer?",
+    "sql": "SELECT TOP {n} ptm1.name AS [Sales Responsible], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum LEFT JOIN dbo.hcmworker hcm ON s.workersalesresponsible = hcm.recid LEFT JOIN dbo.dirpartytable ptm1 ON hcm.person = ptm1.recid WHERE invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY ptm1.name ORDER BY [Sales Value] {sort}",
+    "parameters": [
+      "start_date",
+      "end_date",
+      "sort"
+    ],
+    "optional_parameters": [
+      "n"
+    ],
+    "defaults": {}
+  },
+  {
+    "id": "domestic_category_specific",
+    "question": "Rank domestic performers in FMEG Wires Cables Wiring Devices category for a period",
+    "sql": "SELECT TOP {n} ptm1.name AS [Sales Responsible], s.businesscategory AS [Business Category], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum INNER JOIN dbo.custtable cust ON s.invoiceaccount = cust.accountnum LEFT JOIN dbo.hcmworker hcm ON s.workersalesresponsible = hcm.recid LEFT JOIN dbo.dirpartytable ptm1 ON hcm.person = ptm1.recid WHERE s.businesscategory IN ({business_category}) AND cust.custgroup != 'EXP' AND invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY ptm1.name, s.businesscategory ORDER BY [Sales Value] {sort}",
+    "parameters": [
+      "business_category",
+      "n",
+      "sort",
+      "start_date",
+      "end_date"
+    ],
+    "optional_parameters": [
+      "n",
+      "sort",
+      "start_date",
+      "end_date"
+    ],
+    "defaults": {
+      "n": 10,
+      "sort": "DESC",
+      "start_date": "__LAST_MONTH_START__",
+      "end_date": "__LAST_MONTH_END__"
+    }
+  },
+  {
+    "id": "export_category_specific",
+    "question": "Rank export performers in {business_category} for a period",
+    "sql": "SELECT TOP {n} ptm1.name AS [Sales Responsible], s.businesscategory AS [Business Category], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum INNER JOIN dbo.custtable cust ON s.invoiceaccount = cust.accountnum LEFT JOIN dbo.hcmworker hcm ON s.workersalesresponsible = hcm.recid LEFT JOIN dbo.dirpartytable ptm1 ON hcm.person = ptm1.recid WHERE s.businesscategory IN ({business_category}) AND (s.customsexportorder_in = 1 OR cust.custgroup = 'EXP') AND invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY ptm1.name, s.businesscategory ORDER BY [Sales Value] {sort}",
+    "parameters": [
+      "business_category",
+      "n",
+      "sort",
+      "start_date",
+      "end_date"
+    ],
+    "optional_parameters": [
+      "n",
+      "sort",
+      "start_date",
+      "end_date"
+    ],
+    "defaults": {
+      "n": 10,
+      "sort": "DESC",
+      "start_date": "__LAST_MONTH_START__",
+      "end_date": "__LAST_MONTH_END__"
+    }
+  },
+  {
+    "id": "general_category_performance",
+    "question": "Who are the performers in {business_category} category for a period?",
+    "sql": "SELECT TOP {n} ptm1.name AS [Sales Responsible], s.businesscategory AS [Business Category], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum LEFT JOIN dbo.hcmworker hcm ON s.workersalesresponsible = hcm.recid LEFT JOIN dbo.dirpartytable ptm1 ON hcm.person = ptm1.recid WHERE s.businesscategory IN ({business_category}) AND invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY ptm1.name, s.businesscategory ORDER BY [Sales Value] {sort}",
+    "parameters": [
+      "business_category",
+      "n",
+      "sort",
+      "start_date",
+      "end_date"
+    ],
+    "optional_parameters": [],
+    "defaults": {
+      "n": 10,
+      "sort": "DESC",
+      "start_date": "__LAST_MONTH_START__",
+      "end_date": "__LAST_MONTH_END__"
+    }
+  },
+  {
+    "id": "executive_sales_performance_period",
+    "question": "which sales executive contributed {n} {sort } sales value during a specific date range",
+    "sql": "SELECT TOP {n} ptm1.name AS [Sales Responsible], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum LEFT JOIN dbo.hcmworker hcm ON s.workersalesresponsible = hcm.recid LEFT JOIN dbo.dirpartytable ptm1 ON hcm.person = ptm1.recid WHERE invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY ptm1.name ORDER BY [Sales Value] {sort}",
+    "parameters": [
+      "start_date",
+      "end_date",
+      "n",
+      "sort"
+    ],
+    "optional_parameters": [],
+    "defaults": {
+      "n": 10,
+      "sort": "DESC"
+    }
+  },
+  {
+    "id": "sales_performance_by_state",
+    "question": "Who are the top or bottom performing salespersons in a specific state for any date range",
+    "sql": "SELECT TOP {n} ptm1.name AS [Sales Responsible], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum INNER JOIN dbo.custtable cust ON s.invoiceaccount = cust.accountnum LEFT JOIN dbo.hcmworker hcm ON s.workersalesresponsible = hcm.recid LEFT JOIN dbo.dirpartytable ptm1 ON hcm.person = ptm1.recid WHERE cust.pwcvirtualstateid = '{state_id}' AND invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY ptm1.name ORDER BY [Sales Value] {sort}",
+    "parameters": [
+      "state_id",
+      "n",
+      "start_date",
+      "end_date",
+      "sort"
+    ],
+    "optional_parameters": [],
+    "defaults": {
+      "sort": "DESC",
+      "start_date": "__LAST_MONTH_START__",
+      "end_date": "__LAST_MONTH_END__"
+    }
+  },
+  {
+    "id": "sales_performance_by_cso",
+    "question": "Rank salespersons under a CSO by invoice value in a specific date range",
+    "sql": "SELECT TOP {n} ptm1.name AS [Sales Responsible], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum INNER JOIN dbo.custtable cust ON s.invoiceaccount = cust.accountnum INNER JOIN pwccso_pocdetails cso ON cust.pwccsoid = cso.csoid LEFT JOIN dbo.hcmworker hcm ON s.workersalesresponsible = hcm.recid LEFT JOIN dbo.dirpartytable ptm1 ON hcm.person = ptm1.recid WHERE cso.csoid = '{cso_id}' AND invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY ptm1.name ORDER BY [Sales Value] {sort}",
+    "parameters": [
+      "cso_id",
+      "n",
+      "sort",
+      "start_date",
+      "end_date"
+    ],
+    "optional_parameters": [],
+    "defaults": {
+      "n": 10,
+      "sort": "DESC"
+    }
+  },
+  {
+    "id": "product_segment_domestic",
+    "question": "Show ALL product segments across ALL business categories for domestic sales in a period",
+    "sql": "SELECT s.businesscategory AS [Business Category], invtbl.pwcsegmentid AS [Product Segment], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum INNER JOIN dbo.custtable cust ON s.invoiceaccount = cust.accountnum INNER JOIN dbo.inventtable invtbl ON sl.itemid = invtbl.itemid WHERE invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND cust.custgroup != 'EXP' AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY s.businesscategory, invtbl.pwcsegmentid ORDER BY [Sales Value] DESC",
+    "parameters": [
+      "start_date",
+      "end_date"
+    ],
+    "optional_parameters": [],
+    "defaults": {}
+  },
+  {
+    "id": "product_segment_domestic_by_category",
+    "question": "Filter product segments by SPECIFIC business category like FMEG Wires Cables for domestic sales",
+    "sql": "SELECT s.businesscategory AS [Business Category], invtbl.pwcsegmentid AS [Product Segment], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum INNER JOIN dbo.custtable cust ON s.invoiceaccount = cust.accountnum INNER JOIN dbo.inventtable invtbl ON sl.itemid = invtbl.itemid WHERE s.businesscategory IN ({business_category}) AND invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND cust.custgroup != 'EXP' AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY s.businesscategory, invtbl.pwcsegmentid ORDER BY [Sales Value] DESC",
+    "parameters": [
+      "business_category",
+      "start_date",
+      "end_date"
+    ],
+    "optional_parameters": [],
+    "defaults": {}
+  },
+  {
+    "id": "product_segment_export",
+    "question": "Show ALL product segments across ALL business categories for export sales in a period",
+    "sql": "SELECT s.businesscategory AS [Business Category], invtbl.pwcsegmentid AS [Product Segment], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum INNER JOIN dbo.custtable cust ON s.invoiceaccount = cust.accountnum INNER JOIN dbo.inventtable invtbl ON sl.itemid = invtbl.itemid WHERE invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND (s.customsexportorder_in = 1 OR cust.custgroup = 'EXP') AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY s.businesscategory, invtbl.pwcsegmentid ORDER BY [Sales Value] DESC",
+    "parameters": [
+      "start_date",
+      "end_date"
+    ],
+    "optional_parameters": [],
+    "defaults": {}
+  },
+  {
+    "id": "product_segment_export_by_category",
+    "question": "Filter product segments by SPECIFIC business category like FMEG Wires Cables for export sales",
+    "sql": "SELECT s.businesscategory AS [Business Category], invtbl.pwcsegmentid AS [Product Segment], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum INNER JOIN dbo.custtable cust ON s.invoiceaccount = cust.accountnum INNER JOIN dbo.inventtable invtbl ON sl.itemid = invtbl.itemid WHERE s.businesscategory IN ({business_category}) AND invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND (s.customsexportorder_in = 1 OR cust.custgroup = 'EXP') AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY s.businesscategory, invtbl.pwcsegmentid ORDER BY [Sales Value] DESC",
+    "parameters": [
+      "business_category",
+      "start_date",
+      "end_date"
+    ],
+    "optional_parameters": [],
+    "defaults": {}
+  },
+  {
+    "id": "cso_category_performance",
+    "question": "Who are the top or bottom performing salespersons in a CSO for specific business categories in a date range",
+    "sql": "SELECT TOP {n} ptm1.name AS [Sales Responsible], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum INNER JOIN dbo.custtable cust ON s.invoiceaccount = cust.accountnum INNER JOIN pwccso_pocdetails cso ON cust.pwccsoid = cso.csoid LEFT JOIN dbo.hcmworker hcm ON s.workersalesresponsible = hcm.recid LEFT JOIN dbo.dirpartytable ptm1 ON hcm.person = ptm1.recid WHERE cso.csoid = '{cso_id}' AND s.businesscategory IN ({business_category}) AND invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY ptm1.name ORDER BY [Sales Value] {sort}",
+    "parameters": [
+      "cso_id",
+      "business_category",
+      "n",
+      "sort",
+      "start_date",
+      "end_date"
+    ],
+    "optional_parameters": [],
+    "defaults": {
+      "n": 5,
+      "sort": "DESC"
+    }
+  },
+  {
+    "id": "cso_category_performance_export",
+    "question": "Who are the top or bottom performing salespersons in a CSO for specific business categories in export sales for a date range",
+    "sql": "SELECT TOP {n} ptm1.name AS [Sales Responsible], s.businesscategory AS [Business Category], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum INNER JOIN dbo.custtable cust ON s.invoiceaccount = cust.accountnum LEFT JOIN dbo.hcmworker hcm ON cust.pwcpocid = hcm.personnelnumber LEFT JOIN dbo.dirpartytable ptm1 ON hcm.person = ptm1.recid WHERE cust.pwccsoid = '{cso_id}' AND s.businesscategory IN ({business_category}) AND invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND (s.customsexportorder_in = 1 OR cust.custgroup = 'EXP') AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY ptm1.name, s.businesscategory ORDER BY [Sales Value] {sort}",
+    "parameters": [
+      "cso_id",
+      "business_category",
+      "n",
+      "sort",
+      "start_date",
+      "end_date"
+    ],
+    "optional_parameters": [],
+    "defaults": {
+      "n": 5,
+      "sort": "DESC"
+    }
+  },
+  {
+    "id": "state_category_performance",
+    "question": "Who are the top or bottom performing salespersons in a state for specific business categories in a date range",
+    "sql": "SELECT TOP {n} ptm1.name AS [Sales Responsible], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum INNER JOIN dbo.custtable cust ON s.invoiceaccount = cust.accountnum LEFT JOIN dbo.hcmworker hcm ON s.workersalesresponsible = hcm.recid LEFT JOIN dbo.dirpartytable ptm1 ON hcm.person = ptm1.recid WHERE cust.pwcvirtualstateid = '{state_id}' AND s.businesscategory IN ({business_category}) AND invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY ptm1.name ORDER BY [Sales Value] {sort}",
+    "parameters": [
+      "state_id",
+      "business_category",
+      "n",
+      "sort",
+      "start_date",
+      "end_date"
+    ],
+    "optional_parameters": [],
+    "defaults": {
+      "n": 10,
+      "sort": "DESC"
+    }
+  },
+  {
+    "id": "state_category_performance_export",
+    "question": "Who are the top or bottom performing salespersons in a state for specific business categories in export sales for a date range",
+    "sql": "SELECT TOP {n} ptm1.name AS [Sales Responsible], s.businesscategory AS [Business Category], CAST(ROUND(SUM(custtrnas.lineamount), 0) AS BIGINT) AS [Sales Value] FROM dbo.salestable s INNER JOIN dbo.salesline sl ON s.salesid = sl.salesid INNER JOIN dbo.custinvoicejour invc ON s.salesid = invc.salesid INNER JOIN dbo.custinvoicetrans custtrnas ON invc.invoiceid = custtrnas.invoiceid AND sl.itemid = custtrnas.itemid AND sl.linenum = custtrnas.linenum INNER JOIN dbo.custtable cust ON s.invoiceaccount = cust.accountnum LEFT JOIN dbo.hcmworker hcm ON cust.pwcpocid = hcm.personnelnumber LEFT JOIN dbo.dirpartytable ptm1 ON hcm.person = ptm1.recid WHERE cust.pwcvirtualstateid = '{state_id}' AND s.businesscategory IN ({business_category}) AND invc.invoicedate BETWEEN '{start_date}' AND '{end_date}' AND (s.customsexportorder_in = 1 OR cust.custgroup = 'EXP') AND sl.qtyordered > 0 AND invc.invoicetype_w = 0 GROUP BY ptm1.name, s.businesscategory ORDER BY [Sales Value] {sort}",
+    "parameters": [
+      "state_id",
+      "business_category",
+      "n",
+      "sort",
+      "start_date",
+      "end_date"
+    ],
+    "optional_parameters": [],
+    "defaults": {
+      "n": 10,
+      "sort": "DESC"
+    }
+  }
+]

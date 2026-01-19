@@ -1,0 +1,32 @@
+queries_enhanced.json
+queries_optimized.json
+queries1.json
+queriesOld.json
+queries.json
+# Python virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ChromaDB persistent data
+chroma_db_data/
+
+# VS Code workspace settings
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+
+# Environment variables / secrets
+.env
